@@ -1,0 +1,29 @@
+/* Módulo Usuarios */
+
+.security-panel { margin-bottom:18px; }
+.security-panel h2 { margin-bottom:8px; }
+.compact-form { max-width:520px; }
+.user-form-panel { margin-bottom:18px; }
+.form-help { margin:5px 0 0; font-size:12px; }
+.user-form-grid { margin-top:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.user-form-grid > div { min-width:0; }
+.user-form-grid .span-2 { grid-column:span 2; }
+.user-form-grid .span-all { grid-column:1/-1; }
+.password-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.user-list-panel { padding:0; overflow:hidden; }
+.user-list-panel .row-actions { display:flex; flex-wrap:wrap; gap:6px; }
+.row-actions button { border:0; background:#edf2f5; color:#294455; border-radius:8px; padding:7px 9px; font-size:11px; font-weight:800; }
+.row-actions button.danger-link { background:#f8ecec; color:#9a3f3f; }
+.row-actions button.activate-link { background:#edf7f1; color:#2d6a45; }
+.row-actions button:disabled { opacity:.45; cursor:default; }
+@media (max-width:900px) {
+  .user-form-grid,.password-form-grid { grid-template-columns:1fr 1fr; }
+  .user-form-grid .span-2 { grid-column:span 1; }
+  }
+@media (max-width:620px) {
+  .module-heading,  .user-form-grid,.password-form-grid { grid-template-columns:1fr; }
+  .user-form-grid .span-2,.user-form-grid .span-all { grid-column:auto; }
+    .form-actions button,.module-heading > button { width:100%; }
+}
+
+

@@ -1,0 +1,72 @@
+/* Módulo Equipos */
+
+.equipment-module { display: grid; gap: 18px; }
+.equipment-layout { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(320px, .75fr); gap: 18px; align-items: start; }
+.fleet-panel { min-width: 0; }
+.fleet-filters { display: grid; grid-template-columns: minmax(260px, 1fr) 150px auto; gap: 12px; align-items: end; }
+.fleet-search { min-width: 0; }
+.fleet-refresh { min-height: 42px; }
+.fleet-count { margin: 16px 0 10px; color: var(--muted); font-size: 14px; }
+.fleet-count strong { color: var(--text); font-size: 17px; }
+.fleet-table-wrap { max-height: 620px; overflow: auto; }
+.fleet-table tbody tr { cursor: default; }
+.fleet-table tbody tr.selected-row { background: rgba(27, 92, 147, .08); }
+.table-open { border: 1px solid var(--border); background: #fff; border-radius: 8px; padding: 7px 11px; cursor: pointer; }
+.pagination-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; color: var(--muted); font-size: 14px; }
+.equipment-detail-panel { position: sticky; top: 18px; }
+.equipment-detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.equipment-detail-head h2 { margin: 2px 0 2px; font-size: 28px; }
+.equipment-detail-head p { margin: 0; color: var(--muted); }
+.equipment-detail-list { display: grid; gap: 0; margin: 20px 0; }
+.equipment-detail-list > div { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.equipment-detail-list dt { color: var(--muted); }
+.equipment-detail-list dd { margin: 0; text-align: right; font-weight: 700; }
+.detail-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.danger-button { border: 1px solid #d9a3a3; background: #fff6f6; color: #9f2323; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer; }
+.detail-divider { height: 1px; background: var(--border); margin: 22px 0; }
+.compact-section-title { margin-bottom: 10px; }
+.compact-section-title h3 { margin: 0; }
+.mini-tire-list { display: grid; gap: 8px; }
+.mini-tire-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 9px 10px; border: 1px solid var(--border); border-radius: 9px; background: #fff; font-size: 13px; }
+.mini-tire-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.equipment-form-panel { margin-bottom: 0; }
+.equipment-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.equipment-form-grid label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; }
+.equipment-form-grid input, .fleet-filters input, .fleet-filters select { width: 100%; box-sizing: border-box; }
+
+@media (max-width: 1100px) {
+  .equipment-layout { grid-template-columns: 1fr; }
+  .equipment-detail-panel { position: static; }
+}
+
+@media (max-width: 720px) {
+  .fleet-filters { grid-template-columns: 1fr; }
+  .equipment-form-grid { grid-template-columns: 1fr; }
+  .equipment-form-grid .span-2 { grid-column: auto; }
+  .equipment-layout { gap: 12px; }
+  .pagination-bar { flex-wrap: wrap; }
+}
+
+/* Equipos V2 - flujo vertical limpio */
+.equipment-module { display: grid; gap: 18px; }
+.equipment-search-panel,
+.equipment-form-panel,
+.equipment-technical-panel,
+.equipment-assignment-panel { width: 100%; box-sizing: border-box; }
+.equipment-search-panel { order: 1; }
+.equipment-form-panel { order: 2; }
+.equipment-technical-panel { order: 3; position: static; }
+.equipment-assignment-panel { order: 4; }
+.equipment-technical-panel .equipment-detail-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.equipment-assignment-panel .mini-tire-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 900px) {
+  .equipment-technical-panel .equipment-detail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .equipment-assignment-panel .mini-tire-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .equipment-technical-panel .equipment-detail-list { grid-template-columns: 1fr; }
+}

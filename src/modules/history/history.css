@@ -1,0 +1,397 @@
+.history-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.history-page__header,
+.panel__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.history-page__header h1,
+.panel__title-row h2 {
+  margin: 0;
+}
+
+.history-page__header p,
+.panel__title-row span {
+  margin: 4px 0 0;
+  color: #667085;
+  font-size: 0.92rem;
+}
+
+.history-search__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.history-selection-hint {
+  margin: 12px 0 4px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #175cd3;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.history-master-table,
+.history-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.history-master-table {
+  min-width: 980px;
+}
+
+.history-detail-table {
+  min-width: 1100px;
+}
+
+.history-master-table th,
+.history-master-table td,
+.history-detail-table th,
+.history-detail-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eaecf0;
+  white-space: nowrap;
+}
+
+.history-master-table th,
+.history-detail-table th {
+  color: #475467;
+  background: #f9fafb;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.history-master-table tbody tr {
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.history-master-table tbody tr:hover {
+  background: #eff6ff;
+}
+
+.history-master-table tbody tr.is-selected {
+  background: #1570ef;
+  color: #ffffff;
+  box-shadow: inset 4px 0 0 #0b4db3;
+}
+
+.history-master-table tbody tr.is-selected td {
+  border-bottom-color: #3b82f6;
+}
+
+.history-master-table tbody tr.is-selected .cell-strong {
+  color: #ffffff;
+}
+
+.history-master-table tbody tr.is-selected .cycle-badge {
+  background: #ffffff;
+  color: #175cd3;
+  border-color: #d1e9ff;
+}
+
+.history-master-table tbody tr:focus-visible {
+  outline: 3px solid #84adff;
+  outline-offset: -3px;
+}
+
+.history-selected-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-color: #84adff;
+  background: linear-gradient(90deg, #eff6ff, #ffffff);
+}
+
+.history-selected-banner > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-selected-banner span {
+  color: #175cd3;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.history-selected-banner strong {
+  color: #0b4db3;
+  font-size: 1.08rem;
+}
+
+.history-selected-banner > div:last-child {
+  color: #475467;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.history-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.history-summary-grid > div {
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fcfcfd;
+}
+
+.history-summary-grid span {
+  display: block;
+  color: #667085;
+  font-size: 0.76rem;
+  margin-bottom: 6px;
+}
+
+.history-summary-grid strong {
+  display: block;
+  color: #101828;
+  font-size: 0.93rem;
+  overflow-wrap: anywhere;
+}
+
+.cycle-badge--large {
+  padding: 7px 11px;
+}
+
+.history-depth {
+  font-weight: 900;
+  color: #1849a9;
+}
+
+.cycle-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.cycle-chart-card {
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.cycle-chart-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eaecf0;
+  background: #f8fafc;
+}
+
+.cycle-chart-card__header strong {
+  display: block;
+  color: #101828;
+  font-size: 0.95rem;
+}
+
+.cycle-chart-card__header span:not(.cycle-badge) {
+  display: block;
+  margin-top: 4px;
+  color: #667085;
+  font-size: 0.76rem;
+}
+
+.cycle-chart-card__body {
+  padding: 12px 14px 2px;
+  overflow-x: auto;
+}
+
+.hr-nks-chart {
+  display: block;
+  width: 100%;
+  min-width: 620px;
+  height: auto;
+}
+
+.chart-grid-line {
+  stroke: #e4e7ec;
+  stroke-width: 1;
+}
+
+.chart-grid-line--vertical {
+  stroke-dasharray: 3 5;
+}
+
+.chart-axis-line {
+  stroke: #98a2b3;
+  stroke-width: 1.2;
+}
+
+.chart-axis-text {
+  fill: #667085;
+  font-size: 11px;
+}
+
+.chart-axis-title {
+  fill: #344054;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart-series-line {
+  fill: none;
+  stroke: #1570ef;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-point {
+  fill: #ffffff;
+  stroke: #1570ef;
+  stroke-width: 3;
+}
+
+.chart-empty {
+  margin-top: 14px;
+  padding: 24px;
+  border: 1px dashed #d0d5dd;
+  border-radius: 10px;
+  background: #fcfcfd;
+  color: #667085;
+  text-align: center;
+  font-size: 0.88rem;
+}
+
+.cycle-chart-card .chart-empty {
+  margin: 14px;
+}
+
+.chart-range-summary {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 8px 16px 14px;
+  color: #667085;
+  font-size: 0.8rem;
+}
+
+.chart-range-summary strong {
+  color: #101828;
+}
+
+@media (max-width: 1100px) {
+  .history-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .history-search__controls,
+  .history-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-page__header,
+  .panel__title-row,
+  .history-selected-banner,
+  .cycle-chart-card__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+
+/* Historial V3: rendimiento por HR y KM */
+.cycle-performance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 14px;
+}
+
+.performance-chart-card {
+  min-width: 0;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.performance-chart-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #fcfcfd;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.performance-chart-card__header strong {
+  display: block;
+  color: #101828;
+  font-size: 0.9rem;
+}
+
+.performance-chart-card__header span:not(.cycle-badge) {
+  display: block;
+  margin-top: 3px;
+  color: #667085;
+  font-size: 0.74rem;
+}
+
+.performance-chart-card__body {
+  padding: 10px 12px 0;
+  overflow-x: auto;
+}
+
+.performance-chart {
+  display: block;
+  width: 100%;
+  min-width: 650px;
+  height: auto;
+}
+
+.chart-point-guide {
+  stroke: #d0d5dd;
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+
+.chart-axis-text--elapsed {
+  fill: #175cd3;
+  font-weight: 800;
+}
+
+.chart-axis-text--actual {
+  fill: #667085;
+  font-size: 10px;
+}
+
+.chart-baseline-note {
+  color: #b54708;
+  font-weight: 700;
+}
+
+@media (max-width: 1250px) {
+  .cycle-performance-grid {
+    grid-template-columns: 1fr;
+  }
+}
