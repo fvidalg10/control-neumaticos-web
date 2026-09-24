@@ -10,6 +10,7 @@ import UsersPage from '../modules/users/UsersPage'
 export default function Dashboard({ session, profile }) {
   const [view, setView] = useState('alerts')
   const [historyTarget, setHistoryTarget] = useState(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const titles = {
     alerts: 'Alertas de neumáticos',
@@ -20,19 +21,33 @@ export default function Dashboard({ session, profile }) {
     users: 'Administración de usuarios',
   }
 
+  function goTo(nextView) {
+    setView(nextView)
+    setMobileMenuOpen(false)
+  }
+
   function openHistory(tireCode) {
     setHistoryTarget(tireCode)
     setView('history')
+    setMobileMenuOpen(false)
   }
 
   function openHistoryMenu() {
     setHistoryTarget(null)
     setView('history')
+    setMobileMenuOpen(false)
   }
 
   return (
     <main className="app-shell">
-      <aside className="sidebar">
+      <button
+        type="button"
+        className={`mobile-menu-backdrop ${mobileMenuOpen ? 'is-open' : ''}`}
+        aria-label="Cerrar menú"
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
+      <aside className={`sidebar ${mobileMenuOpen ? 'sidebar-open' : ''}`}>
         <div>
           <div className="sidebar-identity">
             <div className="company-logo-circle">
@@ -40,31 +55,32 @@ export default function Dashboard({ session, profile }) {
             </div>
             <div className="sidebar-brand">CONTROL<br />NEUMÁTICOS</div>
           </div>
+
           <nav>
             <button
               className={view === 'alerts' ? 'nav-active' : ''}
-              onClick={() => setView('alerts')}
+              onClick={() => goTo('alerts')}
             >
               Alertas
             </button>
 
             <button
               className={view === 'equipment' ? 'nav-active' : ''}
-              onClick={() => setView('equipment')}
+              onClick={() => goTo('equipment')}
             >
               Equipos
             </button>
 
             <button
               className={view === 'tires' ? 'nav-active' : ''}
-              onClick={() => setView('tires')}
+              onClick={() => goTo('tires')}
             >
               Neumáticos
             </button>
 
             <button
               className={view === 'assignments' ? 'nav-active' : ''}
-              onClick={() => setView('assignments')}
+              onClick={() => goTo('assignments')}
             >
               Asignaciones
             </button>
@@ -79,7 +95,7 @@ export default function Dashboard({ session, profile }) {
             {profile?.role === 'ADMIN' && (
               <button
                 className={view === 'users' ? 'nav-active' : ''}
-                onClick={() => setView('users')}
+                onClick={() => goTo('users')}
               >
                 Usuarios
               </button>
@@ -95,7 +111,18 @@ export default function Dashboard({ session, profile }) {
 
       <section className="content">
         <header className="topbar">
-          <div>
+          <div className="topbar-title-group">
+            <button
+              type="button"
+              className="mobile-menu-button"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Abrir menú"
+              aria-expanded={mobileMenuOpen}
+            >
+              <span aria-hidden="true">☰</span>
+              <span>Menú</span>
+            </button>
+
             <h1>{titles[view] || 'Control de Neumáticos'}</h1>
           </div>
 

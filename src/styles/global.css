@@ -179,3 +179,198 @@ dd { margin:0; text-align:right; font-size:11px; font-weight:700; }
   margin-top: 10px;
 }
 
+
+
+/* =========================================================
+   Responsive móvil V1
+   ========================================================= */
+
+.mobile-menu-button,
+.mobile-menu-backdrop {
+  display: none;
+}
+
+.topbar-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Ajuste real del logo lateral */
+.company-logo-circle {
+  width: 128px;
+  height: 128px;
+  padding: 14px;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    display: block;
+    min-height: 100vh;
+  }
+
+  .content {
+    width: 100%;
+    max-width: none;
+    padding: 14px;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin: -14px -14px 18px;
+    padding: 12px 14px;
+    background: rgba(244, 246, 248, .96);
+    border-bottom: 1px solid #dfe6eb;
+    backdrop-filter: blur(8px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .topbar-title-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .topbar h1 {
+    font-size: 20px;
+    line-height: 1.2;
+    min-width: 0;
+  }
+
+  .mobile-menu-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 10px;
+    padding: 9px 11px;
+    background: #173f57;
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .mobile-menu-button span:first-child {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .user-area {
+    justify-content: flex-start;
+  }
+
+  .sidebar {
+    display: flex !important;
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    width: min(82vw, 290px);
+    height: 100%;
+    padding: 22px 18px;
+    transform: translateX(-105%);
+    transition: transform .22s ease;
+    box-shadow: 12px 0 32px rgba(0, 0, 0, .24);
+    overflow-y: auto;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .mobile-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, .48);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mobile-menu-backdrop.is-open {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-identity {
+    margin-bottom: 20px;
+  }
+
+  .company-logo-circle {
+    width: 116px;
+    height: 116px;
+    margin-bottom: 12px;
+  }
+
+  .sidebar-identity .sidebar-brand {
+    font-size: 15px;
+  }
+
+  nav button,
+  .logout {
+    min-height: 44px;
+  }
+
+  .summary-grid,
+  .measurement-info {
+    grid-template-columns: 1fr;
+  }
+
+  .tire-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .module-heading,
+  .panel-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 12px;
+  }
+
+  .topbar {
+    margin: -12px -12px 16px;
+    padding: 10px 12px;
+  }
+
+  .topbar-title-group {
+    align-items: flex-start;
+  }
+
+  .topbar h1 {
+    font-size: 18px;
+  }
+
+  .mobile-menu-button span:last-child {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .tire-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .role-chip,
+  .user-chip {
+    font-size: 10px;
+  }
+}
