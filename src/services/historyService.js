@@ -1,13 +1,31 @@
 import { supabase } from '../lib/supabaseClient.js'
 
-export async function getHistoryTires() {
-  const { data, error } = await supabase
-    .from('tire_overview')
-    .select('*')
-    .order('code', { ascending: true })
+async function getAllRows(table, orderColumn = 'code') {
+  const pageSize = 1000
+  let from = 0
+  let allRows = []
 
-  if (error) throw error
-  return data ?? []
+  while (true) {
+    const { data, error } = await supabase
+      .from(table)
+      .select('*')
+      .order(orderColumn, { ascending: true })
+      .range(from, from + pageSize - 1)
+
+    if (error) throw error
+
+    allRows = [...allRows, ...(data ?? [])]
+
+    if (!data || data.length < pageSize) break
+
+    from += pageSize
+  }
+
+  return allRows
+}
+
+export async function getHistoryTires() {
+  return getAllRows('tire_overview', 'code')
 }
 
 export async function getTireLifecycleHistory(tireId) {
