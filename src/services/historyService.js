@@ -17,7 +17,6 @@ async function getAllRows(table, orderColumn = 'code') {
     allRows = [...allRows, ...(data ?? [])]
 
     if (!data || data.length < pageSize) break
-
     from += pageSize
   }
 
@@ -59,4 +58,20 @@ export async function getTireMeasurementHistory(tireId) {
 
   if (error) throw error
   return data ?? []
+}
+
+// Devuelve toda la trazabilidad del neumático físico usando tire_id.
+// No depende de DOT, placa ni posición actual.
+export async function getTireTraceability(tireId) {
+  if (!tireId) {
+    return { cycles: [], assignments: [], measurements: [] }
+  }
+
+  const [cycles, assignments, measurements] = await Promise.all([
+    getTireLifecycleHistory(tireId),
+    getTireAssignmentHistory(tireId),
+    getTireMeasurementHistory(tireId),
+  ])
+
+  return { cycles, assignments, measurements }
 }

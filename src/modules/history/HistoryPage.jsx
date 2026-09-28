@@ -226,7 +226,7 @@ function CycleCharts({ cycle, measurements, assignments }) {
   )
 }
 
-export default function HistoryPage({ initialTireCode = null }) {
+export default function HistoryPage({ initialTireId = null, initialTireCode = null }) {
   const [tires, setTires] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [query, setQuery] = useState('')
@@ -286,19 +286,33 @@ export default function HistoryPage({ initialTireCode = null }) {
   }, [])
 
   useEffect(() => {
-    if (!initialTireCode || tires.length === 0) return
+    if (tires.length === 0) return
+
+    // Prioridad: tire_id. Es la identidad física única e inmutable del neumático.
+    if (initialTireId) {
+      const targetById = tires.find((row) => row.tire_id === initialTireId)
+      if (targetById) {
+        setQuery(targetById.code ?? '')
+        setCycleFilter('TODOS')
+        setSelectedId(targetById.tire_id)
+        return
+      }
+    }
+
+    // Compatibilidad con enlaces antiguos que todavía envían el código.
+    if (!initialTireCode) return
 
     const normalized = String(initialTireCode).trim().toUpperCase()
-    const target = tires.find(
+    const targetByCode = tires.find(
       (row) => String(row.code ?? '').trim().toUpperCase() === normalized,
     )
 
-    if (target) {
-      setQuery(target.code)
+    if (targetByCode) {
+      setQuery(targetByCode.code)
       setCycleFilter('TODOS')
-      setSelectedId(target.tire_id)
+      setSelectedId(targetByCode.tire_id)
     }
-  }, [initialTireCode, tires])
+  }, [initialTireId, initialTireCode, tires])
 
   useEffect(() => {
     loadDetail(selectedId)
@@ -344,6 +358,54 @@ export default function HistoryPage({ initialTireCode = null }) {
 
   const currentAssignment = assignments.find((row) => row.active_assignment) || null
   const latestMeasurement = measurements[0] || null
+
+  const traceabilityEvents = useMemo(() => {
+    const events = []
+
+    assignments.forEach((row) => {
+      if (row.installed_at) {
+        events.push({
+          id: `install-${row.assignment_id}`,
+          type: 'INSTALLATION',
+          date: row.installed_at,
+          plate: row.plate,
+          position: row.position,
+          hr: row.install_hr,
+          km: row.install_km,
+          cycleType: row.cycle_type,
+        })
+      }
+
+      if (row.removed_at) {
+        events.push({
+          id: `remove-${row.assignment_id}`,
+          type: 'REMOVAL',
+          date: row.removed_at,
+          plate: row.plate,
+          position: row.position,
+          hr: row.remove_hr,
+          km: row.remove_km,
+          cycleType: row.cycle_type,
+        })
+      }
+    })
+
+    measurements.forEach((row) => {
+      events.push({
+        id: `measurement-${row.tire_measurement_id}`,
+        type: 'MEASUREMENT',
+        date: row.measured_at,
+        plate: row.plate,
+        position: row.position,
+        hr: row.hr,
+        km: row.km,
+        depth: row.remaining_depth_mm,
+        cycleType: row.cycle_type,
+      })
+    })
+
+    return events.sort((a, b) => new Date(a.date) - new Date(b.date))
+  }, [assignments, measurements])
 
   return (
     <div className="history-page">
@@ -470,6 +532,50 @@ export default function HistoryPage({ initialTireCode = null }) {
               <div><span>Última medición</span><strong>{latestMeasurement ? formatDateTime(latestMeasurement.measured_at) : '—'}</strong></div>
               <div><span>Ciclos registrados</span><strong>{cycles.length}</strong></div>
             </div>
+          </section>
+
+          <section className="panel">
+            <div className="panel__title-row">
+              <div>
+                <h2>Trazabilidad cronológica</h2>
+                <span>El seguimiento pertenece al neumático físico. Los cambios de equipo y posición no reinician su historial.</span>
+              </div>
+              <strong>{traceabilityEvents.length} evento(s)</strong>
+            </div>
+
+            {detailLoading ? (
+              <div className="chart-empty">Cargando trazabilidad...</div>
+            ) : traceabilityEvents.length === 0 ? (
+              <div className="chart-empty">No existen eventos históricos para este neumático.</div>
+            ) : (
+              <div className="traceability-list">
+                {traceabilityEvents.map((event) => (
+                  <div className={`traceability-event traceability-event--${event.type.toLowerCase()}`} key={event.id}>
+                    <div className="traceability-event__marker" aria-hidden="true" />
+                    <div className="traceability-event__content">
+                      <div className="traceability-event__header">
+                        <strong>
+                          {event.type === 'INSTALLATION'
+                            ? 'INSTALACIÓN'
+                            : event.type === 'REMOVAL'
+                              ? 'RETIRO / MOVIMIENTO'
+                              : 'MEDICIÓN'}
+                        </strong>
+                        <span>{formatDateTime(event.date)}</span>
+                      </div>
+                      <div className="traceability-event__details">
+                        <span><b>Ciclo:</b> {textOrDash(event.cycleType)}</span>
+                        <span><b>Equipo:</b> {textOrDash(event.plate)}</span>
+                        <span><b>Posición:</b> {event.position ? `POS${event.position}` : '—'}</span>
+                        {event.depth != null && <span><b>NKS:</b> {event.depth} mm</span>}
+                        <span><b>HR:</b> {textOrDash(event.hr)}</span>
+                        <span><b>KM:</b> {textOrDash(event.km)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="panel">

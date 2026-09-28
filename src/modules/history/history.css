@@ -395,3 +395,95 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Historial V4: trazabilidad física por tire_id */
+.traceability-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 16px;
+}
+
+.traceability-event {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 0 18px;
+}
+
+.traceability-event:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 22px;
+  bottom: 0;
+  width: 2px;
+  background: #e4e7ec;
+}
+
+.traceability-event__marker {
+  width: 14px;
+  height: 14px;
+  margin: 4px 0 0 5px;
+  border-radius: 999px;
+  border: 3px solid #1570ef;
+  background: #ffffff;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.traceability-event--installation .traceability-event__marker {
+  border-color: #039855;
+}
+
+.traceability-event--removal .traceability-event__marker {
+  border-color: #d92d20;
+}
+
+.traceability-event__content {
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  padding: 11px 13px;
+  background: #fcfcfd;
+}
+
+.traceability-event__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.traceability-event__header strong {
+  color: #101828;
+  font-size: 0.82rem;
+}
+
+.traceability-event__header span {
+  color: #667085;
+  font-size: 0.78rem;
+}
+
+.traceability-event__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 8px;
+  color: #475467;
+  font-size: 0.8rem;
+}
+
+.traceability-event__details b {
+  color: #344054;
+}
+
+@media (max-width: 760px) {
+  .traceability-event__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
