@@ -4,6 +4,8 @@ import {
   getTireAssignmentHistory,
   getTireLifecycleHistory,
   getTireMeasurementHistory,
+  getCurrentProfile,
+  updateTireMeasurementRecord,
 } from '../../services/historyService.js'
 import './history.css'
 
@@ -23,6 +25,8 @@ function formatDateTime(value) {
     minute: '2-digit',
   }).format(date)
 }
+
+
 
 function cycleLabel(value) {
   if (!value) return '—'
@@ -226,7 +230,7 @@ function CycleCharts({ cycle, measurements, assignments }) {
   )
 }
 
-export default function HistoryPage({ initialTireId = null, initialTireCode = null }) {
+export default function HistoryPage({ initialTireId = null, initialTireCode = null, profile = null }) {
   const [tires, setTires] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [query, setQuery] = useState('')
@@ -237,6 +241,36 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
   const [cycles, setCycles] = useState([])
   const [assignments, setAssignments] = useState([])
   const [measurements, setMeasurements] = useState([])
+  const [effectiveProfile, setEffectiveProfile] = useState(profile)
+  const [editMode, setEditMode] = useState(null)
+  const [editRow, setEditRow] = useState(null)
+  const [editForm, setEditForm] = useState({})
+  const [savingEdit, setSavingEdit] = useState(false)
+  const [editMessage, setEditMessage] = useState('')
+
+  const isAdmin = effectiveProfile?.role === 'ADMIN' && effectiveProfile?.active !== false
+
+  useEffect(() => {
+    let mounted = true
+
+    async function resolveProfile() {
+      if (profile) {
+        setEffectiveProfile(profile)
+        return
+      }
+
+      try {
+        const current = await getCurrentProfile()
+        if (mounted) setEffectiveProfile(current)
+      } catch (err) {
+        if (mounted) setError(err?.message || 'No se pudo validar el perfil del usuario.')
+      }
+    }
+
+    resolveProfile()
+    return () => { mounted = false }
+  }, [profile])
+
 
   async function loadMaster() {
     try {
@@ -288,29 +322,23 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
   useEffect(() => {
     if (tires.length === 0) return
 
-    // Prioridad: tire_id. Es la identidad física única e inmutable del neumático.
+    let target = null
+
     if (initialTireId) {
-      const targetById = tires.find((row) => row.tire_id === initialTireId)
-      if (targetById) {
-        setQuery(targetById.code ?? '')
-        setCycleFilter('TODOS')
-        setSelectedId(targetById.tire_id)
-        return
-      }
+      target = tires.find((row) => row.tire_id === initialTireId) ?? null
     }
 
-    // Compatibilidad con enlaces antiguos que todavía envían el código.
-    if (!initialTireCode) return
+    if (!target && initialTireCode) {
+      const normalized = String(initialTireCode).trim().toUpperCase()
+      target = tires.find(
+        (row) => String(row.code ?? '').trim().toUpperCase() === normalized,
+      ) ?? null
+    }
 
-    const normalized = String(initialTireCode).trim().toUpperCase()
-    const targetByCode = tires.find(
-      (row) => String(row.code ?? '').trim().toUpperCase() === normalized,
-    )
-
-    if (targetByCode) {
-      setQuery(targetByCode.code)
+    if (target) {
+      setQuery(target.code)
       setCycleFilter('TODOS')
-      setSelectedId(targetByCode.tire_id)
+      setSelectedId(target.tire_id)
     }
   }, [initialTireId, initialTireCode, tires])
 
@@ -359,53 +387,42 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
   const currentAssignment = assignments.find((row) => row.active_assignment) || null
   const latestMeasurement = measurements[0] || null
 
-  const traceabilityEvents = useMemo(() => {
-    const events = []
+  function closeEditor() {
+    setEditMode(null)
+    setEditRow(null)
+    setEditForm({})
+  }
 
-    assignments.forEach((row) => {
-      if (row.installed_at) {
-        events.push({
-          id: `install-${row.assignment_id}`,
-          type: 'INSTALLATION',
-          date: row.installed_at,
-          plate: row.plate,
-          position: row.position,
-          hr: row.install_hr,
-          km: row.install_km,
-          cycleType: row.cycle_type,
-        })
-      }
-
-      if (row.removed_at) {
-        events.push({
-          id: `remove-${row.assignment_id}`,
-          type: 'REMOVAL',
-          date: row.removed_at,
-          plate: row.plate,
-          position: row.position,
-          hr: row.remove_hr,
-          km: row.remove_km,
-          cycleType: row.cycle_type,
-        })
-      }
+  function openMeasurementEditor(row) {
+    setEditMessage('')
+    setEditMode('measurement')
+    setEditRow(row)
+    setEditForm({
+      hr: row.hr ?? '',
+      km: row.km ?? '',
+      remaining_depth_mm: row.remaining_depth_mm ?? '',
     })
+  }
 
-    measurements.forEach((row) => {
-      events.push({
-        id: `measurement-${row.tire_measurement_id}`,
-        type: 'MEASUREMENT',
-        date: row.measured_at,
-        plate: row.plate,
-        position: row.position,
-        hr: row.hr,
-        km: row.km,
-        depth: row.remaining_depth_mm,
-        cycleType: row.cycle_type,
-      })
-    })
+  async function saveAdminEdit(event) {
+    event.preventDefault()
+    if (!isAdmin || editMode !== 'measurement' || !editRow) return
 
-    return events.sort((a, b) => new Date(a.date) - new Date(b.date))
-  }, [assignments, measurements])
+    try {
+      setSavingEdit(true)
+      setError('')
+      setEditMessage('')
+
+      await updateTireMeasurementRecord(editRow.tire_measurement_id, editForm)
+      await Promise.all([loadMaster(), loadDetail(selectedId)])
+      setEditMessage('Inspección actualizada correctamente: HR, KM y NKS.')
+      closeEditor()
+    } catch (err) {
+      setError(err?.message || 'No se pudo guardar la corrección de la inspección.')
+    } finally {
+      setSavingEdit(false)
+    }
+  }
 
   return (
     <div className="history-page">
@@ -417,6 +434,8 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
       </div>
 
       {error && <div className="notice notice--error">{error}</div>}
+      {editMessage && <div className="notice notice--success">{editMessage}</div>}
+      {isAdmin && <div className="notice notice--admin"><strong>Modo ADMIN:</strong> puedes corregir únicamente HR, KM y NKS de cada inspección. La trazabilidad, equipo, posición, fecha y ciclo permanecen bloqueados.</div>}
 
       <section className="panel history-search">
         <div className="panel__title-row">
@@ -532,50 +551,6 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
               <div><span>Última medición</span><strong>{latestMeasurement ? formatDateTime(latestMeasurement.measured_at) : '—'}</strong></div>
               <div><span>Ciclos registrados</span><strong>{cycles.length}</strong></div>
             </div>
-          </section>
-
-          <section className="panel">
-            <div className="panel__title-row">
-              <div>
-                <h2>Trazabilidad cronológica</h2>
-                <span>El seguimiento pertenece al neumático físico. Los cambios de equipo y posición no reinician su historial.</span>
-              </div>
-              <strong>{traceabilityEvents.length} evento(s)</strong>
-            </div>
-
-            {detailLoading ? (
-              <div className="chart-empty">Cargando trazabilidad...</div>
-            ) : traceabilityEvents.length === 0 ? (
-              <div className="chart-empty">No existen eventos históricos para este neumático.</div>
-            ) : (
-              <div className="traceability-list">
-                {traceabilityEvents.map((event) => (
-                  <div className={`traceability-event traceability-event--${event.type.toLowerCase()}`} key={event.id}>
-                    <div className="traceability-event__marker" aria-hidden="true" />
-                    <div className="traceability-event__content">
-                      <div className="traceability-event__header">
-                        <strong>
-                          {event.type === 'INSTALLATION'
-                            ? 'INSTALACIÓN'
-                            : event.type === 'REMOVAL'
-                              ? 'RETIRO / MOVIMIENTO'
-                              : 'MEDICIÓN'}
-                        </strong>
-                        <span>{formatDateTime(event.date)}</span>
-                      </div>
-                      <div className="traceability-event__details">
-                        <span><b>Ciclo:</b> {textOrDash(event.cycleType)}</span>
-                        <span><b>Equipo:</b> {textOrDash(event.plate)}</span>
-                        <span><b>Posición:</b> {event.position ? `POS${event.position}` : '—'}</span>
-                        {event.depth != null && <span><b>NKS:</b> {event.depth} mm</span>}
-                        <span><b>HR:</b> {textOrDash(event.hr)}</span>
-                        <span><b>KM:</b> {textOrDash(event.km)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </section>
 
           <section className="panel">
@@ -699,7 +674,7 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
             <div className="panel__title-row">
               <div>
                 <h2>Historial de mediciones</h2>
-                <span>NKS / remanente registrado por la estación durante cada ciclo.</span>
+                <span>Registro de cada inspección. El ADMIN puede corregir HR, KM y NKS.</span>
               </div>
               <strong>{measurements.length} medición(es)</strong>
             </div>
@@ -716,13 +691,14 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
                     <th>KM</th>
                     <th>NKS</th>
                     <th>Últ. abastecimiento</th>
+                    {isAdmin && <th>Acción</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {detailLoading ? (
-                    <tr><td className="table-state" colSpan="8">Cargando mediciones...</td></tr>
+                    <tr><td className="table-state" colSpan={isAdmin ? 9 : 8}>Cargando mediciones...</td></tr>
                   ) : measurements.length === 0 ? (
-                    <tr><td className="table-state" colSpan="8">Sin mediciones registradas.</td></tr>
+                    <tr><td className="table-state" colSpan={isAdmin ? 9 : 8}>Sin mediciones registradas.</td></tr>
                   ) : measurements.map((row) => (
                     <tr key={row.tire_measurement_id}>
                       <td>{formatDateTime(row.measured_at)}</td>
@@ -733,6 +709,7 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
                       <td>{textOrDash(row.km)}</td>
                       <td className="history-depth">{row.remaining_depth_mm} mm</td>
                       <td>{formatDateTime(row.fueling_date)}</td>
+                      {isAdmin && <td><button type="button" className="btn btn--table-edit" onClick={() => openMeasurementEditor(row)}>Editar HR/KM/NKS</button></td>}
                     </tr>
                   ))}
                 </tbody>
@@ -740,6 +717,68 @@ export default function HistoryPage({ initialTireId = null, initialTireCode = nu
             </div>
           </section>
         </>
+      )}
+
+      {isAdmin && editMode === 'measurement' && editRow && (
+        <section className="panel admin-editor">
+          <div className="panel__title-row">
+            <div>
+              <h2>Editar inspección</h2>
+              <span>{formatDateTime(editRow.measured_at)} · {editRow.plate} · POS{editRow.position}</span>
+            </div>
+            <button type="button" className="btn btn--ghost" onClick={closeEditor}>Cerrar</button>
+          </div>
+
+          <div className="notice notice--warning">
+            HR y KM pertenecen a la inspección completa del equipo y se actualizarán para todas las posiciones del mismo cycle_id. El NKS se modifica únicamente para este neumático.
+          </div>
+
+          <form className="admin-edit-grid admin-edit-grid--inspection" onSubmit={saveAdminEdit}>
+            <label className="field">
+              <span>Horómetro (HR)</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={editForm.hr ?? ''}
+                onChange={(e) => setEditForm({ ...editForm, hr: e.target.value })}
+                placeholder="Ej.: 13616"
+              />
+            </label>
+
+            <label className="field">
+              <span>Kilometraje (KM)</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={editForm.km ?? ''}
+                onChange={(e) => setEditForm({ ...editForm, km: e.target.value })}
+                placeholder="Ej.: 81218"
+              />
+            </label>
+
+            <label className="field">
+              <span>NKS / remanente (mm)</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={editForm.remaining_depth_mm ?? ''}
+                onChange={(e) => setEditForm({ ...editForm, remaining_depth_mm: e.target.value })}
+                placeholder="Ej.: 16.00"
+                required
+              />
+            </label>
+
+            <div className="admin-edit-actions">
+              <button type="button" className="btn btn--ghost" onClick={closeEditor}>Cancelar</button>
+              <button type="submit" className="btn btn--primary" disabled={savingEdit}>
+                {savingEdit ? 'Guardando...' : 'Guardar inspección'}
+              </button>
+            </div>
+          </form>
+        </section>
       )}
     </div>
   )
