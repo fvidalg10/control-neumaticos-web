@@ -5,6 +5,7 @@ import {
   getTiresOverview,
   updateTire,
 } from '../../services/tireService.js'
+import { usePersistentState } from '../../hooks/usePersistentState.js'
 import './tires.css'
 
 const EMPTY_FORM = {
@@ -74,17 +75,17 @@ function normalizeForm(row) {
   }
 }
 
-export default function TiresPage({ profile }) {
+export default function TiresPage({ profile, storagePrefix = 'control-neumaticos' }) {
   const [rows, setRows] = useState([])
-  const [selectedId, setSelectedId] = useState(null)
+  const [selectedId, setSelectedId] = usePersistentState(`${storagePrefix}:tires:selectedId`, null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
-  const [query, setQuery] = useState('')
-  const [projectFilter, setProjectFilter] = useState('TODOS')
-  const [cycleFilter, setCycleFilter] = useState('TODOS')
-  const [typeFilter, setTypeFilter] = useState('TODOS')
-  const [locationFilter, setLocationFilter] = useState('TODOS')
+  const [query, setQuery] = usePersistentState(`${storagePrefix}:tires:query`, '')
+  const [projectFilter, setProjectFilter] = usePersistentState(`${storagePrefix}:tires:projectFilter`, 'TODOS')
+  const [cycleFilter, setCycleFilter] = usePersistentState(`${storagePrefix}:tires:cycleFilter`, 'TODOS')
+  const [typeFilter, setTypeFilter] = usePersistentState(`${storagePrefix}:tires:typeFilter`, 'TODOS')
+  const [locationFilter, setLocationFilter] = usePersistentState(`${storagePrefix}:tires:locationFilter`, 'TODOS')
   const [editMode, setEditMode] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)

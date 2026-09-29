@@ -1,16 +1,27 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { signOut } from '../services/authService'
+import { clearPersistentScope, usePageScroll, usePersistentState } from '../hooks/usePersistentState.js'
 import AlertsPage from '../modules/alerts/AlertsPage'
 import EquipmentPage from '../modules/equipment/EquipmentPage'
 import TiresPage from '../modules/tires/TiresPage'
 import AssignmentPage from '../modules/assignments/AssignmentPage'
 import HistoryPage from '../modules/history/HistoryPage'
+import InspectionsPage from '../modules/inspections/InspectionsPage'
 import UsersPage from '../modules/users/UsersPage'
 
 export default function Dashboard({ session, profile }) {
-  const [view, setView] = useState('alerts')
+  const storagePrefix = `control-neumaticos:${session.user.id}`
+  const [view, setView] = usePersistentState(`${storagePrefix}:dashboard:view`, 'alerts')
   const [historyTarget, setHistoryTarget] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  usePageScroll(`${storagePrefix}:scroll:${view}`)
+
+  useEffect(() => {
+    if (['users', 'inspections'].includes(view) && profile?.role !== 'ADMIN') {
+      setView('alerts')
+    }
+  }, [view, profile?.role, setView])
 
   const titles = {
     alerts: 'Alertas de neumáticos',
@@ -18,6 +29,7 @@ export default function Dashboard({ session, profile }) {
     tires: 'Control de neumáticos',
     assignments: 'Asignación de neumáticos',
     history: 'Historial de neumáticos',
+    inspections: 'Administración de inspecciones',
     users: 'Administración de usuarios',
   }
 
@@ -36,6 +48,11 @@ export default function Dashboard({ session, profile }) {
     setHistoryTarget(null)
     setView('history')
     setMobileMenuOpen(false)
+  }
+
+  async function handleSignOut() {
+    clearPersistentScope(storagePrefix)
+    await signOut()
   }
 
   return (
@@ -93,18 +110,27 @@ export default function Dashboard({ session, profile }) {
             </button>
 
             {profile?.role === 'ADMIN' && (
-              <button
-                className={view === 'users' ? 'nav-active' : ''}
-                onClick={() => goTo('users')}
-              >
-                Usuarios
-              </button>
+              <>
+                <button
+                  className={view === 'inspections' ? 'nav-active' : ''}
+                  onClick={() => goTo('inspections')}
+                >
+                  Inspecciones
+                </button>
+
+                <button
+                  className={view === 'users' ? 'nav-active' : ''}
+                  onClick={() => goTo('users')}
+                >
+                  Usuarios
+                </button>
+              </>
             )}
           </nav>
         </div>
 
         <div className="sidebar-footer">
-          <button className="logout" onClick={signOut}>Cerrar sesión</button>
+          <button className="logout" onClick={handleSignOut}>Cerrar sesión</button>
           <div className="creator-credit">By Franklin Vidal</div>
         </div>
       </aside>
@@ -132,15 +158,22 @@ export default function Dashboard({ session, profile }) {
           </div>
         </header>
 
-        {view === 'alerts' && <AlertsPage onOpenHistory={openHistory} />}
-        {view === 'equipment' && <EquipmentPage profile={profile} />}
-        {view === 'tires' && <TiresPage profile={profile} />}
-        {view === 'assignments' && <AssignmentPage profile={profile} />}
+        {view === 'alerts' && <AlertsPage onOpenHistory={openHistory} storagePrefix={storagePrefix} />}
+        {view === 'equipment' && <EquipmentPage profile={profile} storagePrefix={storagePrefix} />}
+        {view === 'tires' && <TiresPage profile={profile} storagePrefix={storagePrefix} />}
+        {view === 'assignments' && <AssignmentPage profile={profile} storagePrefix={storagePrefix} />}
         {view === 'history' && (
-          <HistoryPage profile={profile} initialTireCode={historyTarget} />
+          <HistoryPage
+            profile={profile}
+            initialTireCode={historyTarget}
+            storagePrefix={storagePrefix}
+          />
+        )}
+        {view === 'inspections' && profile?.role === 'ADMIN' && (
+          <InspectionsPage profile={profile} storagePrefix={storagePrefix} />
         )}
         {view === 'users' && profile?.role === 'ADMIN' && (
-          <UsersPage currentUserId={session.user.id} />
+          <UsersPage currentUserId={session.user.id} storagePrefix={storagePrefix} />
         )}
       </section>
     </main>

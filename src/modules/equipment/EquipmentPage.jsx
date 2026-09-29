@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createEquipmentRecord, fetchEquipmentModuleData, setEquipmentActive, updateEquipmentRecord } from '../../services/equipmentService'
+import { usePersistentState } from '../../hooks/usePersistentState.js'
 import './equipment.css'
 
 const emptyEquipmentForm = {
@@ -12,22 +13,23 @@ const emptyEquipmentForm = {
   active: true,
 }
 
-export default function EquipmentPage({ profile }) {
+export default function EquipmentPage({ profile, storagePrefix = 'control-neumaticos' }) {
   const canManage = profile?.role === 'ADMIN'
   const [equipment, setEquipment] = useState([])
   const [tireRows, setTireRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('ACTIVE')
-  const [selectedId, setSelectedId] = useState('')
+  const [search, setSearch] = usePersistentState(`${storagePrefix}:equipment:search`, '')
+  const [statusFilter, setStatusFilter] = usePersistentState(`${storagePrefix}:equipment:statusFilter`, 'ACTIVE')
+  const [selectedId, setSelectedId] = usePersistentState(`${storagePrefix}:equipment:selectedId`, '')
   const [showCreate, setShowCreate] = useState(false)
   const [createForm, setCreateForm] = useState(emptyEquipmentForm)
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
-  const [page, setPage] = useState(1)
+  const [page, setPage] = usePersistentState(`${storagePrefix}:equipment:page`, 1)
   const pageSize = 40
+  const filtersReadyRef = useRef(false)
 
   useEffect(() => {
     loadEquipment()
@@ -44,10 +46,12 @@ export default function EquipmentPage({ profile }) {
     } else {
       const rows = equipmentData || []
       setEquipment(rows)
-      if (!selectedId && rows.length) {
+      setSelectedId((current) => {
+        if (current && rows.some((item) => item.equipment_id === current)) return current
+        if (!rows.length) return ''
         const firstReal = rows.find((item) => item.plate !== 'DEMO-001') || rows[0]
-        setSelectedId(firstReal.equipment_id)
-      }
+        return firstReal.equipment_id
+      })
     }
 
     if (tireError) {
@@ -84,10 +88,18 @@ export default function EquipmentPage({ profile }) {
   }, [equipment, search, statusFilter])
 
   useEffect(() => {
+    if (!filtersReadyRef.current) {
+      filtersReadyRef.current = true
+      return
+    }
     setPage(1)
-  }, [search, statusFilter])
+  }, [search, statusFilter, setPage])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages, setPage])
   const visibleRows = filtered.slice((page - 1) * pageSize, page * pageSize)
   const selected = equipment.find((item) => item.equipment_id === selectedId) || null
   const currentTires = selected ? tireRows.filter((row) => row.plate === selected.plate) : []

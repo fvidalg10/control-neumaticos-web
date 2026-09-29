@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { getTireAlerts, getTireAlertConfig } from '../../services/alertService.js'
+import { usePersistentState } from '../../hooks/usePersistentState.js'
 import './alerts.css'
 
 function fmt(value, decimals = 0) {
@@ -52,11 +53,11 @@ function wearReason(row) {
   return parts.length ? parts.join(' · ') : 'Tendencia acelerada'
 }
 
-export default function AlertsPage({ onOpenHistory }) {
+export default function AlertsPage({ onOpenHistory, storagePrefix = 'control-neumaticos' }) {
   const [rows, setRows] = useState([])
   const [config, setConfig] = useState(null)
-  const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState('ALERTAS')
+  const [query, setQuery] = usePersistentState(`${storagePrefix}:alerts:query`, '')
+  const [filter, setFilter] = usePersistentState(`${storagePrefix}:alerts:filter`, 'ALERTAS')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 

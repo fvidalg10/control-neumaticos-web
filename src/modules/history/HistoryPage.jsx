@@ -7,6 +7,7 @@ import {
   getCurrentProfile,
   updateTireMeasurementRecord,
 } from '../../services/historyService.js'
+import { usePersistentState } from '../../hooks/usePersistentState.js'
 import './history.css'
 
 function textOrDash(value) {
@@ -230,11 +231,11 @@ function CycleCharts({ cycle, measurements, assignments }) {
   )
 }
 
-export default function HistoryPage({ initialTireId = null, initialTireCode = null, profile = null }) {
+export default function HistoryPage({ initialTireId = null, initialTireCode = null, profile = null, storagePrefix = 'control-neumaticos' }) {
   const [tires, setTires] = useState([])
-  const [selectedId, setSelectedId] = useState(null)
-  const [query, setQuery] = useState('')
-  const [cycleFilter, setCycleFilter] = useState('TODOS')
+  const [selectedId, setSelectedId] = usePersistentState(`${storagePrefix}:history:selectedId`, null)
+  const [query, setQuery] = usePersistentState(`${storagePrefix}:history:query`, '')
+  const [cycleFilter, setCycleFilter] = usePersistentState(`${storagePrefix}:history:cycleFilter`, 'TODOS')
   const [loading, setLoading] = useState(true)
   const [detailLoading, setDetailLoading] = useState(false)
   const [error, setError] = useState('')

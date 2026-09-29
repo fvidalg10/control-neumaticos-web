@@ -1,0 +1,296 @@
+.inspections-page {
+  display: grid;
+  gap: 18px;
+}
+
+.inspection-warning {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+  border: 1px solid #fed7aa;
+  border-radius: 14px;
+  background: #fff7ed;
+}
+
+.inspection-warning strong,
+.inspection-warning span {
+  display: block;
+}
+
+.inspection-warning strong {
+  margin-bottom: 4px;
+  color: #9a3412;
+  font-size: 16px;
+}
+
+.inspection-warning div > span {
+  color: #7c2d12;
+  font-size: 13px;
+}
+
+.inspection-admin-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #9a3412;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+.inspection-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.inspection-summary-card,
+.inspection-panel {
+  background: #fff;
+  border: 1px solid #e2e7eb;
+  border-radius: 14px;
+  box-shadow: 0 3px 14px rgba(16, 43, 62, .04);
+}
+
+.inspection-summary-card {
+  padding: 18px;
+}
+
+.inspection-summary-card span {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.inspection-summary-card strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 28px;
+  color: #172033;
+}
+
+.inspection-panel {
+  overflow: hidden;
+}
+
+.inspection-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.inspection-panel__header h2 {
+  margin: 0 0 5px;
+  font-size: 19px;
+}
+
+.inspection-panel__header p {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.inspection-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 2fr) minmax(170px, 1fr) minmax(160px, .8fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.inspection-toolbar label span {
+  display: block;
+  margin-bottom: 6px;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.inspection-toolbar input,
+.inspection-toolbar select {
+  width: 100%;
+}
+
+.inspection-button {
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.inspection-button:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.inspection-button--ghost {
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  color: #344054;
+}
+
+.inspection-button--danger {
+  background: #b42318;
+  color: #fff;
+}
+
+.inspection-button--danger:hover:not(:disabled) {
+  background: #912018;
+}
+
+.inspection-button--danger-soft {
+  border: 1px solid #fecdca;
+  background: #fff1f0;
+  color: #b42318;
+}
+
+.inspection-button--danger-soft:hover:not(:disabled) {
+  background: #fee4e2;
+}
+
+.inspection-clear {
+  min-height: 42px;
+}
+
+.inspection-message {
+  margin: 14px 20px 0;
+  padding: 11px 13px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.inspection-message--error {
+  border: 1px solid #fecdca;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.inspection-message--success {
+  border: 1px solid #abefc6;
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.inspection-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.inspection-table {
+  width: 100%;
+  min-width: 840px;
+  border-collapse: collapse;
+}
+
+.inspection-table th,
+.inspection-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.inspection-table th {
+  background: #f8fafc;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.inspection-table tbody tr {
+  transition: background .14s ease;
+}
+
+.inspection-table:not(.inspection-measurements-table) tbody tr {
+  cursor: pointer;
+}
+
+.inspection-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.inspection-table tbody tr.is-selected {
+  background: #eff6ff;
+  box-shadow: inset 4px 0 0 #2563eb;
+}
+
+.inspection-table-state {
+  padding: 24px !important;
+  text-align: center !important;
+  color: #667085;
+}
+
+.inspection-count-badge {
+  display: inline-flex;
+  min-width: 28px;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #eef2f6;
+  color: #344054;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.inspection-detail-panel {
+  border-color: #fecdca;
+}
+
+.inspection-danger-note {
+  margin: 14px 20px;
+  padding: 11px 13px;
+  border-left: 4px solid #b42318;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #7a271a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.inspection-measurements-table {
+  min-width: 980px;
+}
+
+.inspection-nks {
+  font-weight: 900;
+}
+
+@media (max-width: 1000px) {
+  .inspection-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .inspection-warning,
+  .inspection-panel__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inspection-summary-grid,
+  .inspection-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .inspection-button--danger {
+    width: 100%;
+  }
+}

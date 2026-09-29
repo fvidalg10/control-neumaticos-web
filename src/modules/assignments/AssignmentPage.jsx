@@ -6,6 +6,7 @@ import {
   getEquipmentPositions,
   removeTireFromPosition,
 } from '../../services/assignmentService.js'
+import { usePersistentState } from '../../hooks/usePersistentState.js'
 import './assignments.css'
 
 function formatDate(value) {
@@ -37,10 +38,10 @@ const GROUPS = [
   { title: 'Eje posterior 2', positions: [7, 8, 9, 10] },
 ]
 
-export default function AssignmentPage({ profile }) {
+export default function AssignmentPage({ profile, storagePrefix = 'control-neumaticos' }) {
   const [equipment, setEquipment] = useState([])
-  const [equipmentQuery, setEquipmentQuery] = useState('')
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState(null)
+  const [equipmentQuery, setEquipmentQuery] = usePersistentState(`${storagePrefix}:assignments:equipmentQuery`, '')
+  const [selectedEquipmentId, setSelectedEquipmentId] = usePersistentState(`${storagePrefix}:assignments:selectedEquipmentId`, null)
   const [positions, setPositions] = useState([])
   const [availableTires, setAvailableTires] = useState([])
   const [tireQuery, setTireQuery] = useState('')
@@ -71,7 +72,10 @@ export default function AssignmentPage({ profile }) {
       setError('')
       const equipmentRows = await getAssignmentEquipment()
       setEquipment(equipmentRows)
-      setSelectedEquipmentId((current) => current || equipmentRows[0]?.equipment_id || null)
+      setSelectedEquipmentId((current) => {
+        if (current && equipmentRows.some((row) => row.equipment_id === current)) return current
+        return equipmentRows[0]?.equipment_id || null
+      })
     } catch (err) {
       setError(err?.message || 'No se pudieron cargar los equipos.')
     } finally {
